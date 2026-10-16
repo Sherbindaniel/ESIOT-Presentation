@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interrupt Service Routines (ISRs) | Interactive ECE Learning</title>
+<style>
+:root{--navy:#10243a;--blue:#1769aa;--cyan:#dff4fb;--ink:#1c2938;--muted:#5d6b79;--paper:#fff;--bg:#f3f6fa;--line:#d9e1ea;--green:#16794b;--red:#b42318;--amber:#fff3cd}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:80px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.62 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}header{background:linear-gradient(120deg,#10243a,#1769aa);color:#fff;padding:38px max(22px,calc((100% - 1180px)/2)) 32px}header .eyebrow{letter-spacing:.13em;text-transform:uppercase;font-size:.78rem;opacity:.85;font-weight:700}h1{font-size:clamp(2rem,5vw,3.25rem);line-height:1.1;margin:.5rem 0}header p{max-width:850px;color:#e8f4ff;margin:.7rem 0} .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.chip{border:1px solid #ffffff65;background:#ffffff12;border-radius:99px;padding:5px 11px;font-size:.85rem}nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 10px #10243a0b;overflow-x:auto}nav .inner{max-width:1180px;margin:auto;display:flex;gap:4px;padding:8px 12px;white-space:nowrap}nav a{color:#23435f;text-decoration:none;padding:7px 10px;border-radius:7px;font-size:.9rem}nav a:hover{background:var(--cyan)}main{max-width:1180px;margin:24px auto;padding:0 18px 48px}.hero-grid,.grid2,.grid3{display:grid;gap:16px}.hero-grid{grid-template-columns:1.3fr .7fr}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}section,.panel{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:24px;margin:16px 0;box-shadow:0 5px 18px #152d4608}section h2{margin:0 0 14px;color:var(--navy);font-size:1.55rem}h3{color:#174f7c;margin:1.15rem 0 .45rem;font-size:1.1rem}p{margin:.45rem 0 .8rem}ul,ol{padding-left:1.3rem}li{margin:.25rem 0}.callout{background:#edf8fc;border-left:4px solid var(--blue);padding:12px 15px;border-radius:7px;margin:12px 0}.warn{background:var(--amber);border-left:4px solid #d6a100;padding:12px 15px;border-radius:7px;margin:12px 0}.tag{display:inline-block;background:#e8f2fb;color:#15517e;padding:2px 8px;border-radius:99px;font-size:.78rem;font-weight:700}table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.94rem}th,td{padding:10px 11px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#eef4f9;color:#163d5c}code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}code{background:#edf1f5;padding:2px 5px;border-radius:4px}pre{background:#101f2e;color:#e5f2ff;padding:16px;border-radius:10px;overflow:auto;line-height:1.5}.diagram{background:#fbfdff;border:1px solid var(--line);border-radius:10px;padding:10px;overflow-x:auto}.diagram svg{display:block;width:100%;min-width:620px;height:auto}.formula{font-family:ui-monospace,monospace;font-size:1.05rem;background:#f0f6fa;padding:12px;border-radius:8px;display:block;overflow-wrap:anywhere}.muted{color:var(--muted);font-size:.92rem}.qa{border:1px solid var(--line);border-radius:9px;margin:9px 0;overflow:hidden}.qa summary{cursor:pointer;padding:12px 14px;background:#f8fafc;font-weight:650}.qa .answer{padding:12px 15px}.quiz-q{border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0}.quiz-q legend{font-weight:700;padding:0 4px}.option{display:block;padding:5px 8px;border-radius:6px;cursor:pointer}.option:hover{background:#f1f7fb}.feedback{margin-top:8px;font-size:.93rem;font-weight:600}.correct{color:var(--green)}.incorrect{color:var(--red)}button{border:0;border-radius:8px;background:var(--blue);color:#fff;padding:10px 16px;font:inherit;font-weight:650;cursor:pointer;margin:5px 6px 5px 0}button.secondary{background:#e8edf2;color:#22384b}button:hover{filter:brightness(.94)}.score{font-size:1.15rem;font-weight:750;margin:12px 0}.pill{border-radius:6px;background:#f0f6fa;padding:3px 7px}.small{font-size:.88rem}.footer{color:var(--muted);text-align:center;padding:20px}.checklist li{margin:.45rem 0}
+@media(max-width:800px){.hero-grid,.grid2,.grid3{grid-template-columns:1fr}section,.panel{padding:18px}main{padding:0 12px 32px}header{padding:30px 20px}nav a{font-size:.82rem;padding:7px}}
+@media print{body{background:white;font-size:11pt}nav,button{display:none!important}header{background:white!important;color:#111;padding:15px 0;border-bottom:2px solid #333}header p{color:#333}main{max-width:none;padding:0}section,.panel{box-shadow:none;break-inside:avoid;border:1px solid #aaa;padding:14px;margin:10px 0}a{color:#111;text-decoration:none}.qa .answer{display:block}.diagram{break-inside:avoid}pre{white-space:pre-wrap;background:#f4f4f4;color:#111}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Interactive ECE Learning • Embedded Systems & Computer Architecture</div>
+  <h1>Interrupt Service Routines (ISRs)</h1>
+  <p>Understand how processors respond to urgent events—from hardware interrupt signals to safe, low-latency ISR design. Includes architecture diagrams, embedded-C examples, timing concepts, interview prep, and self-check quizzes.</p>
+  <div class="chips"><span class="chip">Subject: Embedded Systems / Microprocessors</span><span class="chip">Unit: Interrupts & I/O Handling</span><span class="chip">Level: B.E./B.Tech ECE</span><span class="chip">GATE • Interviews • Lab practice</span></div>
+</header>
+<nav><div class="inner">
+<a href="#intro">Introduction</a><a href="#architecture">Architecture</a><a href="#working">Working</a><a href="#timing">Timing</a><a href="#code">Code</a><a href="#design">Design rules</a><a href="#gate">GATE practice</a><a href="#interview">Interviews</a><a href="#quiz">Topic quiz</a><a href="#revision">Revision</a>
+</div></nav>
+<main>
+<div class="hero-grid">
+<section id="intro"><h2>1. Introduction and learning objectives</h2>
+<p><strong>An Interrupt Service Routine (ISR)</strong> is a special function or handler executed by a processor in response to an interrupt event. The event temporarily redirects normal program execution so the processor can acknowledge or service the event, then usually resumes the interrupted context.</p>
+<p>Examples include a timer reaching its period, a UART receiving a byte, a GPIO edge, an ADC conversion completing, or a network controller reporting a packet.</p>
+<div class="callout"><strong>Core idea:</strong> Interrupts let a processor react to events without continuously polling every device. The ISR should normally do the minimum urgent work and defer longer processing to the main loop, task, or thread.</div>
+<h3>Learning objectives</h3><ul class="checklist"><li>Distinguish an interrupt, interrupt request, ISR, and polling.</li><li>Trace interrupt entry, context preservation, handler execution, and return.</li><li>Understand priority, latency, nesting, masking, and pending flags.</li><li>Write ISR-safe embedded code and avoid race conditions.</li><li>Analyze timing and debug common interrupt failures.</li></ul>
+</section>
+<section><h2>Prerequisites & terminology</h2>
+<ul><li><strong>CPU context:</strong> register values and program state needed to resume execution.</li><li><strong>Interrupt request (IRQ):</strong> signal or event asking for processor attention.</li><li><strong>Vector table:</strong> mapping from interrupt sources to handler entry addresses.</li><li><strong>Latency:</strong> time from event/request to the start of the ISR.</li><li><strong>Priority:</strong> relative urgency used to arbitrate competing interrupts.</li><li><strong>Masking:</strong> temporarily disabling or blocking selected interrupt requests.</li><li><strong>Pending flag:</strong> records that an event needs service.</li><li><strong>ISR-safe shared data:</strong> data accessed by both an ISR and foreground/task code with appropriate synchronization.</li></ul>
+</section>
+</div>
+
+<section id="architecture"><h2>2. Interrupt architecture diagram</h2>
+<p>The following is a conceptual MCU flow, not a screenshot from a specific simulator. Exact entry/exit steps differ by processor architecture and compiler.</p>
+<div class="diagram"><svg viewBox="0 0 900 390" role="img" aria-label="Interrupt flow from peripheral to interrupt controller, CPU, ISR, and return to main program">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#1769aa"/></marker></defs>
+<rect x="25" y="45" width="190" height="78" rx="12" fill="#e4f4fa" stroke="#1769aa" stroke-width="2"/><text x="120" y="75" text-anchor="middle" font-size="17" fill="#123a57" font-weight="bold">Peripheral event</text><text x="120" y="99" text-anchor="middle" font-size="13" fill="#123a57">Timer / GPIO / UART</text>
+<rect x="275" y="45" width="190" height="78" rx="12" fill="#eef2ff" stroke="#5966a8" stroke-width="2"/><text x="370" y="75" text-anchor="middle" font-size="17" fill="#26356f" font-weight="bold">Interrupt controller</text><text x="370" y="99" text-anchor="middle" font-size="13" fill="#26356f">Pending • priority • mask</text>
+<rect x="525" y="45" width="155" height="78" rx="12" fill="#e8f7ec" stroke="#25804c" stroke-width="2"/><text x="602" y="75" text-anchor="middle" font-size="17" fill="#14552f" font-weight="bold">CPU accepts</text><text x="602" y="99" text-anchor="middle" font-size="13" fill="#14552f">Save context</text>
+<rect x="715" y="180" width="160" height="82" rx="12" fill="#fff1dc" stroke="#bd7417" stroke-width="2"/><text x="795" y="211" text-anchor="middle" font-size="17" fill="#71420a" font-weight="bold">ISR handler</text><text x="795" y="235" text-anchor="middle" font-size="13" fill="#71420a">Acknowledge / capture</text>
+<rect x="380" y="275" width="220" height="72" rx="12" fill="#f0f3f6" stroke="#64748b" stroke-width="2"/><text x="490" y="304" text-anchor="middle" font-size="17" fill="#263645" font-weight="bold">Restore context</text><text x="490" y="327" text-anchor="middle" font-size="13" fill="#263645">Return from interrupt</text>
+<rect x="35" y="275" width="220" height="72" rx="12" fill="#e4f4fa" stroke="#1769aa" stroke-width="2"/><text x="145" y="304" text-anchor="middle" font-size="17" fill="#123a57" font-weight="bold">Main program / task</text><text x="145" y="327" text-anchor="middle" font-size="13" fill="#123a57">Resumes execution</text>
+<path d="M215 84 H270" stroke="#1769aa" stroke-width="3" marker-end="url(#arrow)"/><path d="M465 84 H520" stroke="#1769aa" stroke-width="3" marker-end="url(#arrow)"/><path d="M602 123 V151 H795 V175" fill="none" stroke="#1769aa" stroke-width="3" marker-end="url(#arrow)"/><path d="M715 221 H650 V311 H605" fill="none" stroke="#1769aa" stroke-width="3" marker-end="url(#arrow)"/><path d="M380 311 H260" stroke="#1769aa" stroke-width="3" marker-end="url(#arrow)"/><text x="300" y="20" font-size="13" fill="#5d6b79">Interrupt request / arbitration</text><text x="655" y="366" font-size="12" fill="#5d6b79">Conceptual flow; architecture-dependent details omitted</text>
+</svg></div>
+<h3>Typical functional blocks</h3>
+<table><thead><tr><th>Block</th><th>Role</th><th>Design note</th></tr></thead><tbody>
+<tr><td>Peripheral</td><td>Detects event and may set a status/pending flag.</td><td>Check whether the flag must be cleared by writing 1, reading a register, or another device-specific action.</td></tr>
+<tr><td>Interrupt controller</td><td>Applies enable, mask, priority, and pending logic.</td><td>Higher priority does not always mean immediate preemption; masking and current execution state matter.</td></tr>
+<tr><td>CPU / vector table</td><td>Transfers control to the selected handler.</td><td>Some CPUs automatically save a subset of registers; compiler-generated prologue may save more.</td></tr>
+<tr><td>ISR</td><td>Services the event quickly and safely.</td><td>Acknowledge source, capture data, update minimal shared state, signal deferred work.</td></tr>
+<tr><td>Foreground/task</td><td>Performs longer processing after notification.</td><td>Use a queue, flag, semaphore, or RTOS mechanism appropriate to the environment.</td></tr>
+</tbody></table>
+</section>
+
+<section id="working"><h2>3. Working principle: step by step</h2>
+<ol><li><strong>Event occurs.</strong> A peripheral detects a condition, such as a UART receive register becoming full.</li><li><strong>Request is raised.</strong> Hardware sets a request or pending flag. The request may remain pending if masked.</li><li><strong>CPU checks eligibility.</strong> Global enable state, per-source enable, priority, and current execution state determine whether it can be accepted.</li><li><strong>Current context is preserved.</strong> The CPU and/or compiler saves the program counter, status register, and any required registers. The exact mechanism is architecture-specific.</li><li><strong>Handler is selected.</strong> The vector table or interrupt dispatch mechanism identifies the correct ISR.</li><li><strong>ISR services the source.</strong> It acknowledges the interrupt as required, captures time-sensitive data, and records work to be done later.</li><li><strong>Return from interrupt.</strong> A special return instruction or runtime mechanism restores the interrupted context; execution resumes unless another eligible interrupt is serviced first.</li></ol>
+<div class="warn"><strong>Important:</strong> An interrupt request is not the same as an ISR. The request is the event/condition; the ISR is the code executed to handle it.</div>
+<h3>Interrupts versus polling</h3>
+<table><thead><tr><th>Aspect</th><th>Interrupt-driven</th><th>Polling</th></tr></thead><tbody>
+<tr><td>CPU usage</td><td>Can do other work between events.</td><td>Repeatedly checks status.</td></tr><tr><td>Response</td><td>Often faster for sporadic events; bounded by interrupt latency.</td><td>Bounded by polling interval and loop workload.</td></tr><tr><td>Complexity</td><td>Needs careful shared-state and timing design.</td><td>Often simpler to reason about.</td></tr><tr><td>Best fit</td><td>Asynchronous or time-sensitive events.</td><td>Very frequent checks, simple loops, or systems where polling is predictable.</td></tr>
+</tbody></table>
+<h3>Common ISR types</h3><ul><li><strong>External/hardware:</strong> GPIO edge, timer, UART, ADC, SPI, DMA completion.</li><li><strong>Processor exceptions:</strong> faults, illegal instructions, memory protection violations; handling rules differ from ordinary IRQs.</li><li><strong>Maskable:</strong> can be disabled or masked under defined conditions.</li><li><strong>Non-maskable:</strong> designed for critical events and not blocked by ordinary interrupt masks.</li><li><strong>Nested:</strong> a higher-priority interrupt can preempt a lower-priority handler if the architecture and configuration allow it.</li></ul>
+</section>
+
+<section id="timing"><h2>4. Timing, latency, and priority</h2>
+<p>Illustrative timing view. It is not a measured waveform and does not represent a particular MCU.</p>
+<div class="diagram"><svg viewBox="0 0 850 280" role="img" aria-label="Illustrative timing diagram showing event, latency, ISR execution, and return">
+<line x1="155" y1="35" x2="810" y2="35" stroke="#b6c3d0"/><text x="20" y="40" font-size="15" fill="#243b53">Event</text><path d="M155 55 V22 H810" fill="none" stroke="#1769aa" stroke-width="3"/>
+<text x="20" y="95" font-size="15" fill="#243b53">CPU</text><path d="M155 110 H300 V75 H530 V110 H810" fill="none" stroke="#25804c" stroke-width="3"/><rect x="300" y="76" width="230" height="33" fill="#dff3e5" stroke="#25804c"/><text x="415" y="98" text-anchor="middle" font-size="14" fill="#14552f">ISR execution</text>
+<path d="M155 150 V165 H300 V150" fill="none" stroke="#bd7417" stroke-width="2"/><text x="227" y="185" text-anchor="middle" font-size="13" fill="#8a520e">Interrupt latency</text>
+<path d="M300 205 V218 H530 V205" fill="none" stroke="#5966a8" stroke-width="2"/><text x="415" y="240" text-anchor="middle" font-size="13" fill="#26356f">ISR execution time</text>
+<text x="155" y="265" font-size="12" fill="#5d6b79">Request detected</text><text x="530" y="265" font-size="12" fill="#5d6b79">Return / resume</text>
+</svg></div>
+<span class="formula">Total response time ≈ interrupt latency + time to reach the required action inside the ISR</span>
+<p>For a system with interrupt latency \(L\), ISR execution time \(C\), and event deadline \(D\), a basic requirement is that the time to the required action be within the deadline. In a simple non-nested model, a rough check is \(L+C \le D\). Real-time analysis may also need blocking, higher-priority interference, critical sections, and scheduling delays.</p>
+<h3>What affects latency?</h3><ul><li>Time spent with interrupts masked.</li><li>Higher-priority handlers already running or pending.</li><li>Instruction completion rules and CPU architecture.</li><li>Context stacking, vector dispatch, flash/cache wait states, and bus contention.</li><li>RTOS critical sections and peripheral synchronization.</li></ul>
+<div class="callout"><strong>Engineering distinction:</strong> Short ISR execution time and low interrupt latency are related but different. Latency is the wait before service begins; execution time is how long the handler runs.</div>
+</section>
+
+<section id="code"><h2>5. Embedded-C example</h2>
+<p>Generic illustrative pattern: a timer ISR sets a flag, while the main loop performs the longer work. Register names and interrupt declaration syntax vary by MCU, compiler, and framework.</p>
+<pre><code>#include &lt;stdint.h&gt;
+
+/* Shared between ISR and foreground code.
+   volatile prevents certain compiler optimizations; it is not a lock. */
+static volatile uint8_t tick_pending = 0;
+
+/* Replace this declaration with the MCU/compiler's correct ISR syntax. */
+void TIMER_IRQHandler(void)
+{
+    /* Acknowledge/clear the timer interrupt source as required
+       by the specific MCU reference manual. */
+    tick_pending = 1;  /* Keep the ISR short. */
+}
+
+int main(void)
+{
+    /* Configure timer, clear pending state, enable its interrupt,
+       then enable global interrupts according to the MCU manual. */
+    while (1) {
+        if (tick_pending) {
+            /* If multiple ticks must be counted, use a counter or queue
+               with a suitable atomicity/overflow strategy instead. */
+            tick_pending = 0;
+            perform_periodic_work();
+        }
+        /* Other foreground work */
+    }
+}</code></pre>
+<div class="warn"><strong>Portability note:</strong> This is a pattern, not a drop-in program: <code>perform_periodic_work()</code> and the hardware-specific acknowledgement/configuration must be supplied. The flag pattern can lose event counts if repeated interrupts occur before the flag is consumed. Use an atomic counter, queue, or RTOS primitive if every event matters.</div>
+<h3>Why keep an ISR short?</h3><ul><li>Reduces blocking time for other interrupts.</li><li>Improves predictability and helps meet deadlines.</li><li>Limits risk of stack exhaustion and timing jitter.</li><li>Prevents long operations from delaying the foreground application.</li></ul>
+</section>
+
+<section id="design"><h2>6. Safe ISR design and debugging</h2>
+<h3>Recommended practices</h3>
+<ul><li>Acknowledge the interrupt source correctly to prevent repeated entry.</li><li>Capture time-critical data immediately, then defer parsing, logging, and calculations.</li><li>Keep shared data access atomic or protect it with a suitable synchronization strategy.</li><li>Use <code>volatile</code> for memory-mapped registers and certain asynchronously changed variables, but do not mistake it for atomicity or mutual exclusion.</li><li>Avoid blocking calls, sleeps, unbounded loops, and ordinary mutexes inside an ISR unless the platform explicitly supports a specific ISR-safe API.</li><li>Use a queue, ring buffer, event flag, or RTOS “give from ISR” API where appropriate.</li><li>Check stack usage, nesting depth, interrupt priority, and worst-case execution time.</li><li>Read the exact MCU reference manual: flag-clearing semantics differ across peripherals.</li></ul>
+<h3>Common failure modes</h3>
+<table><thead><tr><th>Symptom</th><th>Likely causes</th><th>Checks</th></tr></thead><tbody>
+<tr><td>ISR never runs</td><td>Interrupt not enabled, wrong vector name, global mask set, peripheral source not enabled.</td><td>Verify vector table, NVIC/controller configuration, pending flag, and global enable.</td></tr>
+<tr><td>ISR runs repeatedly</td><td>Source flag not cleared or level-triggered condition remains active.</td><td>Inspect device-specific acknowledgement sequence and input level.</td></tr>
+<tr><td>Events are lost</td><td>Single boolean flag coalesces multiple events, buffer overflow, long masked interval.</td><td>Use counter/queue; measure peak rate and consumer throughput.</td></tr>
+<tr><td>Intermittent corrupted data</td><td>Race condition, non-atomic multi-byte access, unsafe shared buffer.</td><td>Use critical sections or atomics supported by the toolchain; design ownership carefully.</td></tr>
+<tr><td>System becomes unstable</td><td>ISR too long, unsafe library call, stack overflow, priority inversion or nesting issue.</td><td>Toggle a debug GPIO, measure execution time, inspect stack and priority settings.</td></tr>
+</tbody></table>
+<h3>Shared variables: what <code>volatile</code> does and does not do</h3>
+<table><thead><tr><th>It helps with</th><th>It does not guarantee</th></tr></thead><tbody><tr><td>Preventing the compiler from assuming a volatile value never changes outside visible code; useful for memory-mapped registers and certain ISR-shared flags.</td><td>Atomic read-modify-write, thread safety, mutual exclusion, memory ordering for all concurrency patterns, or prevention of lost events.</td></tr></tbody></table>
+</section>
+
+<section id="numericals"><h2>7. Worked timing examples</h2>
+<h3>Example 1 — Basic interrupt response</h3><p><strong>Given:</strong> latency = 4 μs, ISR execution time = 7 μs. Find approximate time from event to ISR completion, ignoring interference.</p><p><span class="formula">T ≈ L + C = 4 μs + 7 μs = 11 μs</span></p><p><strong>Answer:</strong> approximately 11 μs. This estimate assumes no additional blocking, nesting, or deferred action.</p>
+<h3>Example 2 — Deadline check</h3><p><strong>Given:</strong> a control event must be serviced within 25 μs; worst-case latency is 6 μs and time to the required action is 8 μs. Is the deadline met?</p><p><span class="formula">Response to action = 6 μs + 8 μs = 14 μs</span></p><p><strong>Answer:</strong> yes, under the stated assumptions, with 11 μs of margin. The full ISR need not finish before the deadline if the required action occurs earlier.</p>
+<h3>Example 3 — Event rate and service budget</h3><p><strong>Given:</strong> an interrupt arrives every 500 μs and the ISR takes 20 μs. Find the fraction of CPU time consumed by this ISR, assuming no other overhead.</p><p><span class="formula">Utilization = C / T = 20 / 500 = 0.04 = 4%</span></p><p><strong>Answer:</strong> about 4% of CPU time. At higher rates, include entry/exit overhead, queue processing, and other interrupt workloads.</p>
+</section>
+
+<section id="gate"><h2>8. GATE-style practice</h2>
+<p class="muted">These are original practice questions, not claimed to be actual previous-year GATE questions. Choose an answer, then reveal the explanation.</p>
+<div id="gateQuestions"></div>
+</section>
+
+<section id="interview"><h2>9. Core electronics / embedded interview questions</h2>
+<p>Expand each question to review a concise interview-ready answer.</p>
+<details class="qa"><summary>1. What is an ISR?</summary><div class="answer">A handler executed when an enabled interrupt or exception is accepted. It services the event and normally returns to the interrupted context.</div></details>
+<details class="qa"><summary>2. How is an interrupt different from polling?</summary><div class="answer">Polling checks a condition repeatedly; interrupts notify the CPU asynchronously. Interrupts can reduce wasted checking but introduce concurrency and timing complexity.</div></details>
+<details class="qa"><summary>3. Why should an ISR be short?</summary><div class="answer">Long handlers increase blocking and latency for other work, raise jitter, and can threaten real-time deadlines. Capture urgent data and defer heavy processing.</div></details>
+<details class="qa"><summary>4. What is interrupt latency?</summary><div class="answer">The delay from the interrupt event/request to the beginning of service, influenced by masking, priority, current execution, and hardware/software entry overhead.</div></details>
+<details class="qa"><summary>5. What is a vector table?</summary><div class="answer">A table or mapping that identifies reset, exception, and interrupt handler entry points. Exact layout is architecture-specific.</div></details>
+<details class="qa"><summary>6. Does volatile make a variable thread-safe?</summary><div class="answer">No. It constrains certain compiler optimizations but does not ensure atomicity or mutual exclusion. Use suitable atomic operations, critical sections, or synchronization primitives.</div></details>
+<details class="qa"><summary>7. What causes an ISR to execute continuously?</summary><div class="answer">Often the source is not acknowledged/cleared, the interrupt condition remains asserted, or the wrong flag-clearing sequence is used. Consult the peripheral reference manual.</div></details>
+<details class="qa"><summary>8. Can an ISR call printf() or allocate memory?</summary><div class="answer">Usually avoid it. Such calls may block, use locks, take unpredictable time, or be non-reentrant. Record compact data and print/process it later in foreground code.</div></details>
+<details class="qa"><summary>9. What is nested interrupt handling?</summary><div class="answer">A higher-priority interrupt preempts a currently executing handler when permitted by the architecture and configuration. Nesting raises stack and worst-case timing concerns.</div></details>
+<details class="qa"><summary>10. How would you measure ISR execution time?</summary><div class="answer">Toggle a GPIO at ISR entry and exit and measure it with an oscilloscope or logic analyzer; alternatively use a cycle counter or trace facility. Account for instrumentation overhead.</div></details>
+<details class="qa"><summary>11. A UART receives bytes faster than the main loop consumes them. What would you do?</summary><div class="answer">Read the receive register promptly in the ISR, place bytes in a bounded ring buffer, signal foreground processing, and size the buffer from peak rate and maximum service delay. Detect and handle overflow.</div></details>
+<details class="qa"><summary>12. How do you safely share a multi-byte counter between ISR and main code?</summary><div class="answer">Check whether the target can access it atomically. If not, briefly mask the relevant interrupt around a copy, use a supported atomic type/operation, or use a platform-provided synchronization approach. Keep critical sections short.</div></details>
+<h3>Industry perspective</h3><p>ISRs are fundamental in motor-control loops, sensor acquisition, UART/SPI communication, power converters, automotive ECUs, medical instruments, industrial controllers, and RTOS-based products. Engineers validate both correctness and worst-case timing, not merely whether the handler runs in a demonstration.</p>
+</section>
+
+<section id="quiz"><h2>10. Interactive 10-question topic quiz</h2>
+<p>Choose one answer per question, then select <strong>Check answers</strong>. The score is out of 10 with a percentage. Unanswered items count as incorrect and are identified separately.</p>
+<form id="topicQuiz"><div id="topicQuestions"></div><button type="button" id="checkQuiz">Check answers</button><button type="button" class="secondary" id="resetQuiz">Reset quiz</button><div id="quizResult" aria-live="polite"></div></form>
+</section>
+
+<section id="revision"><h2>11. Quick revision sheet</h2>
+<h3>High-priority facts</h3><ul><li>ISR = code; interrupt request = event/condition.</li><li>Typical flow: event → request/pending → eligibility/arbitration → context save → vector/handler → service/acknowledge → return.</li><li>Latency is time before service starts; execution time is time spent in the handler.</li><li>Priorities, masking, and nesting influence response time.</li><li>Keep the handler short; defer heavy work.</li><li><code>volatile</code> is not a synchronization primitive.</li><li>Always verify interrupt flag semantics in the exact MCU reference manual.</li></ul>
+<h3>Formula sheet</h3><table><thead><tr><th>Quantity</th><th>Formula</th><th>Notes</th></tr></thead><tbody><tr><td>Approximate time to completion</td><td><code>T ≈ L + C</code></td><td>Simple model; add interference/overhead for real-time analysis.</td></tr><tr><td>ISR CPU utilization</td><td><code>U = C / Tperiod</code></td><td>For one periodic interrupt, ignoring overhead and other work.</td></tr><tr><td>Deadline margin</td><td><code>M = D − R</code></td><td><code>D</code> = deadline; <code>R</code> = response time to required action.</td></tr><tr><td>Interrupt rate</td><td><code>f = 1 / Tperiod</code></td><td>Use consistent units, e.g. seconds and hertz.</td></tr></tbody></table>
+<h3>Applications and career relevance</h3><ul><li><strong>Applications:</strong> timers, motor control, sensor sampling, communications, ADC/DMA completion, fault handling.</li><li><strong>Roles:</strong> embedded firmware engineer, RTOS developer, automotive embedded engineer, hardware validation engineer, firmware test engineer.</li><li><strong>Testing tools:</strong> debugger, cycle counter, oscilloscope, logic analyzer, trace tools, and stress tests under peak interrupt load.</li></ul>
+<h3>Memory aid: “A-C-S-D”</h3><p><span class="pill"><strong>A</strong>cknowledge</span> the source • <span class="pill"><strong>C</strong>apture</span> urgent data • <span class="pill"><strong>S</strong>ignal</span> deferred work • <span class="pill"><strong>D</strong>efer</span> heavy processing.</p>
+</section>
+<div class="footer">Standalone offline learning page • Illustrations are conceptual • Always follow the target MCU datasheet, reference manual, compiler, and RTOS documentation.</div>
+</main>
+<script>
+const gateData = [
+{d:"Easy",q:"What is the main purpose of an ISR?",o:["Continuously poll all peripherals","Service an accepted interrupt event","Replace the operating system","Increase CPU clock frequency"],a:1,e:"An ISR is the handler that services an interrupt event. Polling is a different approach."},
+{d:"Easy",q:"Which statement about interrupt latency is correct?",o:["It is always equal to ISR execution time","It is the delay before interrupt service begins","It is the time spent in the main loop only","It is always zero for hardware interrupts"],a:1,e:"Latency describes the delay until service begins; execution time measures how long the handler runs."},
+{d:"Easy",q:"Which is a common source of a hardware interrupt in a microcontroller?",o:["Timer overflow event","A comment in source code","A variable name change","A CSS style update"],a:0,e:"Timer overflow/update events commonly trigger hardware interrupts."},
+{d:"Moderate",q:"An ISR takes 8 μs and the interrupt latency is 3 μs. Ignoring interference, what is the approximate time to ISR completion?",o:["5 μs","8 μs","11 μs","24 μs"],a:2,e:"Approximate completion time = latency + execution = 3 + 8 = 11 μs."},
+{d:"Moderate",q:"A periodic ISR takes 15 μs and occurs every 300 μs. Ignoring overhead, what CPU utilization does it consume?",o:["2%","5%","15%","20%"],a:1,e:"U = C/T = 15/300 = 0.05 = 5%."},
+{d:"Moderate",q:"What does volatile generally help ensure for a shared ISR flag in C?",o:["All operations become atomic","The compiler does not assume the value is unchanged across accesses","No race condition can occur","The ISR always has the highest priority"],a:1,e:"Volatile constrains optimization around accesses, but it does not guarantee atomicity or synchronization."},
+{d:"Moderate",q:"Why should lengthy formatting or logging usually be avoided in an ISR?",o:["It disables the vector table permanently","It can block, take unpredictable time, or use non-reentrant facilities","It automatically clears every pending flag","It makes the CPU lose its clock"],a:1,e:"Logging may be slow, blocking, or unsafe in interrupt context. Record minimal data and process it later."},
+{d:"Difficult",q:"A level-triggered interrupt repeatedly re-enters immediately after return. What is a likely cause?",o:["The source condition remains asserted or is not acknowledged correctly","The program has too many comments","The CPU has a vector table","The ISR is written in C"],a:0,e:"If the level remains active or the source is not cleared according to device rules, the request can remain pending."},
+{d:"Difficult",q:"A higher-priority IRQ arrives while a lower-priority ISR runs. What happens?",o:["It always waits until reset","It may preempt if nesting and priority configuration allow it","It deletes the lower-priority vector","It is converted into polling"],a:1,e:"Preemption depends on the architecture, priority configuration, masks, and whether nesting is enabled."},
+{d:"Difficult",q:"A boolean flag is set by an ISR for every received byte, but several bytes can arrive before foreground code clears it. What is the key risk?",o:["The flag stores every byte automatically","Multiple events can collapse into one indication","The CPU changes endianness","Interrupt priority becomes negative"],a:1,e:"A single boolean represents only pending/not-pending; it cannot count multiple events. Use a queue or counter when every event matters."}
+];
+const quizData = [
+{q:"An ISR is best described as:",o:["A special handler executed for an interrupt","A memory address for every variable","A CPU cooling routine","A polling delay"],a:0,e:"An ISR handles an accepted interrupt event."},
+{q:"Which device event commonly causes an interrupt?",o:["Timer compare match","Changing a source-code comment","Renaming a folder","Opening a text editor"],a:0,e:"A timer compare match is a common hardware interrupt source."},
+{q:"The vector table is used to:",o:["Store all sensor samples","Map interrupt/exception sources to handler entry points","Increase supply voltage","Measure analog resistance"],a:1,e:"The vector table or equivalent mapping directs execution to the appropriate handler."},
+{q:"Interrupt latency is measured from:",o:["ISR return to next reset","Interrupt event/request to start of service","Program compile to link","Power-on to battery charging"],a:1,e:"Latency is the delay before the handler begins servicing the event."},
+{q:"Which action is generally appropriate inside a short ISR?",o:["Wait for a network response","Perform unlimited logging","Capture a byte and signal deferred processing","Sleep for 100 ms"],a:2,e:"Capture urgent data quickly and defer longer processing."},
+{q:"What is true about volatile in C?",o:["It makes every operation atomic","It prevents every race condition","It affects compiler assumptions about accesses but is not a lock","It disables all interrupts automatically"],a:2,e:"Volatile is not a replacement for atomic operations or synchronization."},
+{q:"An ISR takes 10 μs and occurs every 200 μs. Approximate utilization is:",o:["2%","5%","10%","20%"],a:1,e:"10/200 = 0.05 = 5%, ignoring overhead."},
+{q:"A pending interrupt never clears. What should be checked first?",o:["The screen brightness","The peripheral's documented acknowledgement/flag-clearing sequence","The font size","The project folder name"],a:1,e:"Flag semantics vary; follow the reference manual."},
+{q:"A higher-priority interrupt can preempt a lower-priority ISR when:",o:["The architecture and configuration permit nesting and it is not masked","Any interrupt occurs, on every processor","The main function has ended","The vector table is removed"],a:0,e:"Preemption depends on hardware and configured priority/masking rules."},
+{q:"If every received byte must be preserved when arrivals are bursty, a useful approach is:",o:["Use one boolean flag only","Ignore the receive register","Store bytes in a bounded ring buffer and handle overflow","Add a longer delay in the ISR"],a:2,e:"A buffer can preserve multiple events, provided it is sized and managed correctly."}
+];
+function renderQuestions(target,data,prefix,gate=false){
+ const root=document.getElementById(target);
+ root.innerHTML=data.map((q,i)=>`<fieldset class="quiz-q" id="${prefix}-q${i}"><legend>${i+1}. ${q.q} <span class="tag">${q.d||"Topic"}</span></legend>${q.o.map((op,j)=>`<label class="option"><input type="radio" name="${prefix}-${i}" value="${j}"> ${String.fromCharCode(65+j)}. ${op}</label>`).join("")}<div class="feedback" id="${prefix}-fb${i}" aria-live="polite"></div>${gate?`<details><summary>Show answer and explanation</summary><p><strong>Answer: ${String.fromCharCode(65+q.a)}.</strong> ${q.e}</p></details>`:""}</fieldset>`).join("");
+}
+renderQuestions("gateQuestions",gateData,"gate",true);
+renderQuestions("topicQuestions",quizData,"topic",false);
+document.getElementById("checkQuiz").addEventListener("click",()=>{
+ let score=0,unanswered=0;
+ quizData.forEach((q,i)=>{
+  const selected=document.querySelector(`input[name="topic-${i}"]:checked`);
+  const fb=document.getElementById(`topic-fb${i}`);
+  if(!selected){unanswered++;fb.className="feedback incorrect";fb.textContent=`Unanswered. Correct answer: ${String.fromCharCode(65+q.a)}. ${q.e}`;}
+  else if(Number(selected.value)===q.a){score++;fb.className="feedback correct";fb.textContent=`Correct. ${q.e}`;}
+  else{fb.className="feedback incorrect";fb.textContent=`Incorrect. Correct answer: ${String.fromCharCode(65+q.a)}. ${q.e}`;}
+ });
+ const pct=score/quizData.length*100;
+ document.getElementById("quizResult").innerHTML=`<div class="score">Score: ${score}/10 (${pct}%)</div><p>${unanswered} unanswered question(s). ${score===10?"Excellent work!":score>=7?"Good job—review the missed explanations.":"Review the working-principle and design sections, then try again."}</p>`;
+});
+document.getElementById("resetQuiz").addEventListener("click",()=>{
+ document.getElementById("topicQuiz").reset();
+ document.querySelectorAll("#topicQuestions .feedback").forEach(x=>{x.textContent="";x.className="feedback";});
+ document.getElementById("quizResult").innerHTML="";
+});
+</script>
+</body>
+</html>
